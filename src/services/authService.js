@@ -11,14 +11,21 @@ export const login = async (credentials) => {
 
 export const getCurrentUser = async () => {
   try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return null;
+    }
     const response = await api.get('/Usuario/current');
     return response.data;
   } catch (error) {
-    throw error.response?.data || { message: 'Error al obtener el usuario actual' };
+    console.error('Error getting current user:', error);
+    localStorage.removeItem('token');
+    return null;
   }
 };
 
 export const logout = () => {
   localStorage.removeItem('token');
-  window.location.href = '/login';
+  // Don't redirect here to prevent potential loops
+  // The component will handle the redirect
 };
