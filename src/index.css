@@ -1,0 +1,21 @@
+:root {
+  --primary: rgb(247, 251, 252);
+  --secondary: rgb(214, 230, 242);
+  --tertiary: rgb(185, 215, 234);
+  --accent: rgb(118, 159, 205);
+
+  --primary-raw: 247, 251, 252;
+  --secondary-raw: 214, 230, 242;
+  --tertiary-raw: 185, 215, 234;
+  --accent-raw: 118, 159, 205;
+
+  --primary-hex: #F7FBFC;
+  --secondary-hex: #D6E6F2;
+  --tertiary-hex: #B9D7EA;
+  --accent-hex: #769FCD;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
