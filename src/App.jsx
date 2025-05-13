@@ -1,6 +1,9 @@
 import FormularioOrden from "./pages/Orden";
 import LoginVehiculos from "./pages/Login";
 import { useState } from "react";
+import InventoryManagement from "./pages/InventoryManagement";
+import MaintenanceHistory from "./pages/MaintenanceHistory";
+import VehicleManagement from "./pages/VehicleManagement";
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -146,6 +149,9 @@ const App = () => {
         </div>
       </div>
       <FormularioOrden />
+      <InventoryManagement />
+      <MaintenanceHistory />
+      <VehicleManagement />
     </main>
   );
 };
