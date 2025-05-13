@@ -511,7 +511,11 @@ const styles = {
       flexDirection: 'column',
       gap: '8px'
     },
-    editButton,
+    editButton: {
+      width: '100%',
+      textAlign: 'center',
+      marginBottom: '8px'
+    },
     deleteButton: {
       width: '100%',
       textAlign: 'center'

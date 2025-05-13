@@ -1,6 +1,7 @@
 import React from 'react';
 
-const LoginVehiculos = () => {
+const LoginVehiculos = ({handleLogin}) => {
+
   return (
       <div style={styles.card}>
         <div style={styles.header}>
@@ -36,7 +37,7 @@ const LoginVehiculos = () => {
             />
           </div>
 
-          <button type="submit" style={styles.button}>
+          <button type="submit" style={styles.button} onClick={handleLogin}>
             Iniciar Sesión
           </button>
 
