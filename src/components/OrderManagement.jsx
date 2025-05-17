@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaSearch, FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaFilter } from 'react-icons/fa';
 import FormularioOrden from './Orden';
+import api from '../services/api';
 
 // Componente principal de gestión de órdenes
 const OrderManagement = () => {
@@ -13,47 +14,24 @@ const OrderManagement = () => {
     fechaInicio: '',
     fechaFin: ''
   });
+  const [editingId, setEditingId] = useState(null);
 
   // Cargar órdenes iniciales (simulando una API)
   useEffect(() => {
-    // Datos de ejemplo
-    const mockOrders = [
-      {
-        id: 1,
-        tipoVehiculo: 'Pickup',
-        tipoMantenimiento: 'Cambio de aceite',
-        fechaIngreso: '2023-06-15',
-        fechaSalidaEstimada: '2023-06-16',
-        estado: 'Completado',
-        metodoPago: 'Efectivo',
-        montoEstimado: '500.00',
-        observaciones: 'Cambio de aceite y filtro'
-      },
-      {
-        id: 2,
-        tipoVehiculo: 'SUV',
-        tipoMantenimiento: 'Lavado completo',
-        fechaIngreso: '2023-06-16',
-        fechaSalidaEstimada: '2023-06-17',
-        estado: 'En Proceso',
-        metodoPago: 'Tarjeta',
-        montoEstimado: '150.00',
-        observaciones: 'Lavado completo con encerado'
-      },
-      {
-        id: 3,
-        tipoVehiculo: 'Sedan',
-        tipoMantenimiento: 'Revisión general',
-        fechaIngreso: '2023-06-17',
-        fechaSalidaEstimada: '2023-06-19',
-        estado: 'Pendiente',
-        metodoPago: 'Efectivo',
-        montoEstimado: '300.00',
-        observaciones: 'Revisión de frenos y suspensión'
-      }
-    ];
-    setOrders(mockOrders);
+    fetchOrders();
+    //setOrders(mockOrders);
   }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const response = await api.get('/api/Orden');
+      setOrders(response.data);
+    } catch (error) {
+      console.error('Error fetching ordens:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSaveOrder = (orderData) => {
     if (currentOrder) {
@@ -186,10 +164,10 @@ const OrderManagement = () => {
           <tbody>
             {filteredOrders.length > 0 ? (
               filteredOrders.map(order => (
-                <tr key={order.id} style={styles.tr}>
-                  <td style={styles.td}>#{order.id}</td>
-                  <td style={styles.td}>{order.tipoVehiculo}</td>
-                  <td style={styles.td}>{order.tipoMantenimiento}</td>
+                <tr key={order.idOrden} style={styles.tr}>
+                  <td style={styles.td}>#{order.idOrden}</td>
+                  <td style={styles.td}>{order.idVehiculo}</td>
+                  <td style={styles.td}>{order.observaciones}</td>
                   <td style={styles.td}>
                     {new Date(order.fechaIngreso).toLocaleDateString()}
                   </td>

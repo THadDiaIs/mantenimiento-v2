@@ -213,7 +213,7 @@ const ServiceManagement = () => {
                 <td>{service.nombre}</td>
                 <td>{service.descripcion || 'N/A'}</td>
                 <td>{service.costo.toFixed(2)}</td>
-                <td>{formatDuration(service.duracion)}</td>
+                <td>{service.duracion}</td>
                 <td>
                   <span style={{
                     color: service.activo ? '#4CAF50' : '#f44336',
