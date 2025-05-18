@@ -1,48 +1,88 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const LoginVehiculos = ({handleLogin}) => {
+const LoginVehiculos = ({ handleLogin }) => {
+  const [correo, setCorreo] = useState('');
+  const [contrasenia, setContrasenia] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await fetch('https://localhost:7020/api/Empleado/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ correo, contrasenia })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Error de autenticación');
+      }
+
+      const data = await response.json();
+      console.log('Login exitoso:', data);
+      if (handleLogin) {
+        handleLogin(data); 
+      }
+
+    } catch (err) {
+      console.error('Error al iniciar sesión:', err.message);
+      setError(err.message);
+    }
+  };
 
   return (
-      <div style={styles.card}>
-        <div style={styles.header}>
-          <div style={styles.logoContainer}>
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/1995/1995459.png" 
-              alt="Logo Taller" 
-              style={styles.logo}
-            />
-          </div>
-          <h2 style={styles.title}>Sistema de Mantenimiento de Vehiculos</h2>
-          <p style={styles.subtitle}>Ingrese sus credenciales para acceder</p>
+    <div style={styles.card}>
+      <div style={styles.header}>
+        <div style={styles.logoContainer}>
+          <img 
+            src="https://cdn-icons-png.flaticon.com/512/1995/1995459.png" 
+            alt="Logo Taller" 
+            style={styles.logo}
+          />
+        </div>
+        <h2 style={styles.title}>Sistema de Mantenimiento de Vehículos</h2>
+        <p style={styles.subtitle}>Ingrese sus credenciales para acceder</p>
+      </div>
+
+      <form style={styles.form} onSubmit={handleSubmit}>
+        <div style={styles.formGroup}>
+          <label htmlFor="correo" style={styles.label}>Correo</label>
+          <input
+            type="text"
+            id="correo"
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+            placeholder="Ej: paulgomez@gmail.com"
+            style={styles.input}
+          />
         </div>
 
-        <form style={styles.form}>
-          <div style={styles.formGroup}>
-            <label htmlFor="usuario" style={styles.label}>Usuario</label>
-            <input
-              type="text"
-              id="usuario"
-              placeholder="Ej: paulgomez"
-              style={styles.input}
-            />
-          </div>
+        <div style={styles.formGroup}>
+          <label htmlFor="contrasenia" style={styles.label}>Contraseña</label>
+          <input
+            type="password"
+            id="contrasenia"
+            value={contrasenia}
+            onChange={(e) => setContrasenia(e.target.value)}
+            placeholder="Ingrese su contraseña"
+            style={styles.input}
+          />
+        </div>
 
-          <div style={styles.formGroup}>
-            <label htmlFor="contrasena" style={styles.label}>Contraseña</label>
-            <input
-              type="password"
-              id="contraseña"
-              placeholder="Ingrese su contraseña"
-              style={styles.input}
-            />
-          </div>
+        {error && (
+          <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>
+        )}
 
-          <button type="submit" style={styles.button} onClick={handleLogin}>
-            Iniciar Sesión
-          </button>
-
-        </form>
-      </div>
+        <button type="submit" style={styles.button}>
+          Iniciar Sesión
+        </button>
+      </form>
+    </div>
   );
 };
 
@@ -107,10 +147,6 @@ const styles = {
     transition: 'all 0.3s',
     boxSizing: 'border-box'
   },
-  inputFocus: {
-    borderColor: '#3498db',
-    boxShadow: '0 0 0 3px rgba(52, 152, 219, 0.1)'
-  },
   button: {
     backgroundColor: '#3498db',
     color: 'white',
@@ -122,22 +158,6 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.3s',
     marginTop: '10px'
-  },
-  buttonHover: {
-    backgroundColor: '#2980b9'
-  },
-  link: {
-    color: '#3498db',
-    fontSize: '13px',
-    textDecoration: 'none',
-    transition: 'all 0.3s'
-  },
-  linkHover: {
-    textDecoration: 'underline'
-  },
-  separator: {
-    color: '#bdc3c7',
-    fontSize: '12px'
   }
 };
 

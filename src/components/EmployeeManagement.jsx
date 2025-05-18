@@ -8,10 +8,14 @@ const EmployeeManagement = () => {
     nombre: '',
     apellido: '',
     telefono: '',
-    email: '',
+    correo: '',
     direccion: '',
     fechaNacimiento: '',
-    idRol: ''
+    contrasenia: '',
+    fechaContratacion: '',
+    salario: '',
+    idRol: '',
+    rolIdRol: ''
   });
   const [editingId, setEditingId] = useState(null);
   const [roles, setRoles] = useState([]);
@@ -48,11 +52,17 @@ const EmployeeManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const payload = {
+      ...formData,
+      rolIdRol: formData.idRol
+    };
+
     try {
       if (editingId) {
-        await api.put(`/api/Empleado/${editingId}`, formData);
+        await api.put(`/api/Empleado/${editingId}`, payload);
       } else {
-        await api.post('/api/Empleado', formData);
+        await api.post('/api/Empleado', payload);
       }
       fetchEmployees();
       resetForm();
@@ -66,10 +76,14 @@ const EmployeeManagement = () => {
       nombre: employee.nombre,
       apellido: employee.apellido,
       telefono: employee.telefono,
-      email: employee.email,
+      correo: employee.correo,
       direccion: employee.direccion,
       fechaNacimiento: employee.fechaNacimiento.split('T')[0],
-      idRol: employee.idRol
+      contrasenia: '',
+      fechaContratacion: employee.fechaContratacion.split('.')[0],
+      salario: employee.salario,
+      idRol: employee.idRol,
+      rolIdRol: employee.idRol
     });
     setEditingId(employee.idEmpleado);
   };
@@ -90,10 +104,14 @@ const EmployeeManagement = () => {
       nombre: '',
       apellido: '',
       telefono: '',
-      email: '',
+      correo: '',
       direccion: '',
       fechaNacimiento: '',
-      idRol: ''
+      contrasenia: '',
+      fechaContratacion: '',
+      salario: '',
+      idRol: '',
+      rolIdRol: ''
     });
     setEditingId(null);
   };
@@ -144,13 +162,13 @@ const EmployeeManagement = () => {
             <label>Email:</label>
             <input
               type="email"
-              name="email"
-              value={formData.email}
+              name="correo"
+              value={formData.correo}
               onChange={handleInputChange}
               required
             />
           </div>
-          
+
           <div style={styles.formGroup}>
             <label>Dirección:</label>
             <input
@@ -161,7 +179,7 @@ const EmployeeManagement = () => {
               required
             />
           </div>
-          
+
           <div style={styles.formGroup}>
             <label>Fecha de Nacimiento:</label>
             <input
@@ -172,7 +190,41 @@ const EmployeeManagement = () => {
               required
             />
           </div>
-          
+
+          <div style={styles.formGroup}>
+            <label>Contraseña:</label>
+            <input
+              type="password"
+              name="contrasenia"
+              value={formData.contrasenia}
+              onChange={handleInputChange}
+              required={!editingId}
+            />
+          </div>
+
+          <div style={styles.formGroup}>
+            <label>Fecha de Contratación:</label>
+            <input
+              type="datetime-local"
+              name="fechaContratacion"
+              value={formData.fechaContratacion}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
+          <div style={styles.formGroup}>
+            <label>Salario:</label>
+            <input
+              type="number"
+              name="salario"
+              step="0.01"
+              value={formData.salario}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+
           <div style={styles.formGroup}>
             <label>Rol:</label>
             <select
@@ -228,7 +280,7 @@ const EmployeeManagement = () => {
                 <td>{emp.nombre}</td>
                 <td>{emp.apellido}</td>
                 <td>{emp.telefono}</td>
-                <td>{emp.email}</td>
+                <td>{emp.correo}</td>
                 <td>{roles.find(r => r.idRol === emp.idRol)?.nombre || 'N/A'}</td>
                 <td>
                   <button 
@@ -276,21 +328,6 @@ const styles = {
   formGroup: {
     marginBottom: '10px'
   },
-  input: {
-    width: '100%',
-    padding: '8px',
-    marginTop: '5px',
-    border: '1px solid #ddd',
-    borderRadius: '4px'
-  },
-  select: {
-    width: '100%',
-    padding: '8px',
-    marginTop: '5px',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    backgroundColor: 'white'
-  },
   buttonGroup: {
     display: 'flex',
     gap: '10px',
@@ -320,16 +357,6 @@ const styles = {
     width: '100%',
     borderCollapse: 'collapse',
     marginTop: '15px'
-  },
-  th: {
-    backgroundColor: '#f2f2f2',
-    padding: '10px',
-    textAlign: 'left',
-    borderBottom: '1px solid #ddd'
-  },
-  td: {
-    padding: '10px',
-    borderBottom: '1px solid #ddd'
   },
   editButton: {
     padding: '5px 10px',

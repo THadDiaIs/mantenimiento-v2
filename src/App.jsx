@@ -11,6 +11,7 @@ const App = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showLoginButton, setShowLoginButton] = useState(false);
   const [userPermissions, setUserPermissions] = useState({
+    gestionEmpleados: false,
     gestionUsuarios: false,
     gestionVehiculos: false,
     gestionServicios: false,
@@ -66,6 +67,7 @@ const App = () => {
       gestionOrdenes: true,
       gestionPagos: true,
       gestionUsuarios: true,
+      gestionEmpleados: true,
     })
     setCurrentView('orders')
     setIsAuthenticated(true);
@@ -102,6 +104,7 @@ const App = () => {
     setCurrentView('dashboard');
     setShowLogin(true);
     setUserPermissions({
+      gestionEmpleados: false,
       gestionUsuarios: false,
       gestionVehiculos: false,
       gestionServicios: false,

@@ -3,6 +3,7 @@ import VehicleManagement from "../components/VehicleManagement";
 import ServiceManagement from "../components/ServiceManagement";
 import PaymentManagement from "../components/PaymentManagement";
 import UserManagement from "../components/UserManagement";
+import EmployeeManagement from "../components/EmployeeManagement";
 
 const Dashboard = ({userPermissions, handleLogout, currentView, setCurrentView}) => {
     const buttonStyle = {
@@ -77,6 +78,14 @@ const Dashboard = ({userPermissions, handleLogout, currentView, setCurrentView})
                 Usuarios
               </button>
             )}
+            {userPermissions.gestionEmpleados && (
+              <button
+                onClick={() => setCurrentView('employee')}
+                style={currentView === 'employee' ? activeButtonStyle : buttonStyle}
+              >
+                Empleados
+              </button>
+            )}
             <div style={{ marginLeft: 'auto' }}>
               <button
                 onClick={handleLogout}
@@ -97,6 +106,8 @@ const Dashboard = ({userPermissions, handleLogout, currentView, setCurrentView})
             {currentView === 'services' && <ServiceManagement />}
             {currentView === 'payments' && <PaymentManagement />}
             {currentView === 'users' && <UserManagement />}
+            {currentView === 'employee' && <EmployeeManagement />}
+            
           </div>
         </div >
     );

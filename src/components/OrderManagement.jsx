@@ -166,7 +166,7 @@ const OrderManagement = () => {
               filteredOrders.map(order => (
                 <tr key={order.idOrden} style={styles.tr}>
                   <td style={styles.td}>#{order.idOrden}</td>
-                  <td style={styles.td}>{order.idVehiculo}</td>
+                  <td style={styles.td}>{order.vehiculo.marca}</td>
                   <td style={styles.td}>{order.observaciones}</td>
                   <td style={styles.td}>
                     {new Date(order.fechaIngreso).toLocaleDateString()}
@@ -180,7 +180,7 @@ const OrderManagement = () => {
                     </span>
                   </td>
                   <td style={styles.td}>
-                    {parseFloat(order.montoEstimado || 0).toFixed(2)}
+                    {parseFloat(order.pago.monto || 0).toFixed(2)}
                   </td>
                   <td style={styles.td}>
                     <div style={styles.actionButtons}>
