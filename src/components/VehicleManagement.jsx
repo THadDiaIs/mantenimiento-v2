@@ -4,6 +4,7 @@ import api from '../services/api';
 const VehicleManagement = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     idUsuario: '',
     marca: '',
@@ -40,24 +41,34 @@ const VehicleManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      // parseInt anio y idUsuario porque son números
-      const vehicleData = {
-        ...formData,
-        anio: parseInt(formData.anio, 10),
-        idUsuario: parseInt(formData.idUsuario, 10),
-      };
 
+    const anioNum = parseInt(formData.anio, 10);
+    const idUsuarioNum = parseInt(formData.idUsuario, 10);
+
+    if (isNaN(anioNum) || isNaN(idUsuarioNum)) {
+      alert('El ID Usuario y el Año deben ser números válidos');
+      return;
+    }
+
+    const vehicleData = {
+      ...formData,
+      anio: anioNum,
+      idUsuario: idUsuarioNum,
+    };
+
+    setSaving(true);
+    try {
       if (editingId) {
         await api.put(`/api/Vehiculo/${editingId}`, vehicleData);
       } else {
         await api.post('/api/Vehiculo', vehicleData);
       }
-
       fetchVehicles();
       resetForm();
     } catch (error) {
       console.error('Error saving vehicle:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -79,6 +90,9 @@ const VehicleManagement = () => {
       try {
         await api.delete(`/api/Vehiculo/${id}`);
         fetchVehicles();
+        if (editingId === id) {
+          resetForm();
+        }
       } catch (error) {
         console.error('Error deleting vehicle:', error);
       }
@@ -107,104 +121,104 @@ const VehicleManagement = () => {
       <div style={styles.formContainer}>
         <h3>{editingId ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}</h3>
         <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formGroup}>
-            <label>ID Usuario *</label>
-            <input
-              type="number"
-              name="idUsuario"
-              value={formData.idUsuario}
-              onChange={handleInputChange}
-              required
-              min="1"
-            />
-          </div>
+  <div style={styles.formGroup}>
+    <label>ID Usuario *</label>
+    <input
+      type="number"
+      name="idUsuario"
+      value={formData.idUsuario}
+      onChange={handleInputChange}
+      required
+      min="1"
+    />
+  </div>
 
-          <div style={styles.formGroup}>
-            <label>Marca *</label>
-            <input
-              type="text"
-              name="marca"
-              value={formData.marca}
-              onChange={handleInputChange}
-              required
-              maxLength="50"
-            />
-          </div>
+  <div style={styles.formGroup}>
+    <label>Marca *</label>
+    <input
+      type="text"
+      name="marca"
+      value={formData.marca}
+      onChange={handleInputChange}
+      required
+      maxLength="50"
+    />
+  </div>
 
-          <div style={styles.formGroup}>
-            <label>Modelo *</label>
-            <input
-              type="text"
-              name="modelo"
-              value={formData.modelo}
-              onChange={handleInputChange}
-              required
-              maxLength="50"
-            />
-          </div>
+  <div style={styles.formGroup}>
+    <label>Modelo *</label>
+    <input
+      type="text"
+      name="modelo"
+      value={formData.modelo}
+      onChange={handleInputChange}
+      required
+      maxLength="50"
+    />
+  </div>
 
-          <div style={styles.formGroup}>
-            <label>Año *</label>
-            <input
-              type="number"
-              name="anio"
-              value={formData.anio}
-              onChange={handleInputChange}
-              required
-              min="1900"
-              max={new Date().getFullYear()}
-            />
-          </div>
+  <div style={styles.formGroup}>
+    <label>Año *</label>
+    <input
+      type="number"
+      name="anio"
+      value={formData.anio}
+      onChange={handleInputChange}
+      required
+      min="1900"
+      max={new Date().getFullYear()}
+    />
+  </div>
 
-          <div style={styles.formGroup}>
-            <label>Placa *</label>
-            <input
-              type="text"
-              name="placa"
-              value={formData.placa}
-              onChange={handleInputChange}
-              required
-              maxLength="10"
-            />
-          </div>
+  <div style={styles.formGroup}>
+    <label>Placa *</label>
+    <input
+      type="text"
+      name="placa"
+      value={formData.placa}
+      onChange={handleInputChange}
+      required
+      maxLength="10"
+    />
+  </div>
 
-          <div style={styles.formGroup}>
-            <label>Color</label>
-            <input
-              type="text"
-              name="color"
-              value={formData.color}
-              onChange={handleInputChange}
-              maxLength="30"
-            />
-          </div>
+  <div style={styles.formGroup}>
+    <label>Color</label>
+    <input
+      type="text"
+      name="color"
+      value={formData.color}
+      onChange={handleInputChange}
+      maxLength="30"
+    />
+  </div>
 
-          <div style={styles.formGroup}>
-            <label>Tipo</label>
-            <input
-              type="text"
-              name="tipo"
-              value={formData.tipo}
-              onChange={handleInputChange}
-              maxLength="30"
-            />
-          </div>
+  <div style={styles.formGroup}>
+    <label>Tipo</label>
+    <input
+      type="text"
+      name="tipo"
+      value={formData.tipo}
+      onChange={handleInputChange}
+      maxLength="30"
+    />
+  </div>
 
-          <div style={styles.buttonGroup}>
-            <button type="submit" style={styles.submitButton}>
-              {editingId ? 'Actualizar Vehículo' : 'Agregar Vehículo'}
-            </button>
-            {editingId && (
-              <button
-                type="button"
-                onClick={resetForm}
-                style={styles.cancelButton}
-              >
-                Cancelar
-              </button>
-            )}
-          </div>
-        </form>
+  <div style={styles.buttonGroup}>
+    <button type="submit" disabled={saving} style={styles.submitButton}>
+      {saving ? 'Guardando...' : editingId ? 'Actualizar Vehículo' : 'Agregar Vehículo'}
+    </button>
+    {editingId && (
+      <button
+        type="button"
+        onClick={resetForm}
+        style={styles.cancelButton}
+      >
+        Cancelar
+      </button>
+    )}
+  </div>
+</form>
       </div>
 
       <div style={styles.tableContainer}>
@@ -224,39 +238,46 @@ const VehicleManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {vehicles.map(vehicle => (
-              <tr key={vehicle.idVehiculo}>
-                <td>{vehicle.idVehiculo}</td>
-                <td>{vehicle.idUsuario}</td>
-                <td>{vehicle.marca}</td>
-                <td>{vehicle.modelo}</td>
-                <td>{vehicle.anio}</td>
-                <td>{vehicle.placa}</td>
-                <td>{vehicle.color || 'N/A'}</td>
-                <td>{vehicle.tipo || 'N/A'}</td>
-                <td>
-                  <button
-                    onClick={() => handleEdit(vehicle)}
-                    style={styles.editButton}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(vehicle.idVehiculo)}
-                    style={styles.deleteButton}
-                  >
-                    Eliminar
-                  </button>
+            {vehicles.length > 0 ? (
+              vehicles.map(vehicle => (
+                <tr key={vehicle.idVehiculo}>
+                  <td>{vehicle.idVehiculo}</td>
+                  <td>{vehicle.idUsuario}</td>
+                  <td>{vehicle.marca}</td>
+                  <td>{vehicle.modelo}</td>
+                  <td>{vehicle.anio}</td>
+                  <td>{vehicle.placa}</td>
+                  <td>{vehicle.color || 'N/A'}</td>
+                  <td>{vehicle.tipo || 'N/A'}</td>
+                  <td>
+                    <button
+                      onClick={() => handleEdit(vehicle)}
+                      style={styles.editButton}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleDelete(vehicle.idVehiculo)}
+                      style={styles.deleteButton}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="9" style={{ textAlign: 'center', padding: '15px' }}>
+                  No hay vehículos registrados.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
     </div>
   );
 };
-
 
 const styles = {
   container: {

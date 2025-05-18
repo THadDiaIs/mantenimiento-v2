@@ -29,7 +29,7 @@ const OrderManagement = () => {
     } catch (error) {
       console.error('Error fetching ordens:', error);
     } finally {
-      setLoading(false);
+      //setLoading(false);
     }
   };
 
@@ -162,54 +162,54 @@ const OrderManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.length > 0 ? (
-              filteredOrders.map(order => (
-                <tr key={order.idOrden} style={styles.tr}>
-                  <td style={styles.td}>#{order.idOrden}</td>
-                  <td style={styles.td}>{order.vehiculo.marca}</td>
-                  <td style={styles.td}>{order.observaciones}</td>
-                  <td style={styles.td}>
-                    {new Date(order.fechaIngreso).toLocaleDateString()}
-                  </td>
-                  <td style={styles.td}>
-                    <span style={{
-                      ...styles.statusBadge,
-                      ...getStatusStyle(order.estado)
-                    }}>
-                      {order.estado}
-                    </span>
-                  </td>
-                  <td style={styles.td}>
-                    {parseFloat(order.pago.monto || 0).toFixed(2)}
-                  </td>
-                  <td style={styles.td}>
-                    <div style={styles.actionButtons}>
-                      <button 
-                        onClick={() => handleEdit(order)}
-                        style={styles.actionButton}
-                        title="Editar"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(order.id)}
-                        style={{...styles.actionButton, color: '#dc3545'}}
-                        title="Eliminar"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
-                  No se encontraron órdenes que coincidan con los criterios de búsqueda.
-                </td>
-              </tr>
-            )}
-          </tbody>
+  {filteredOrders.length > 0 ? (
+    filteredOrders.map(order => (
+      <tr key={order.idOrden} style={styles.tr}>
+        <td style={styles.td}>#{order.idOrden}</td>
+        <td style={styles.td}>{order.vehiculo.marca}</td>
+        <td style={styles.td}>{order.observaciones}</td>
+        <td style={styles.td}>
+          {new Date(order.fechaIngreso).toLocaleDateString()}
+        </td>
+        <td style={styles.td}>
+          <span style={{
+            ...styles.statusBadge,
+            ...getStatusStyle(order.estado)
+          }}>
+            {order.estado}
+          </span>
+        </td>
+        <td style={styles.td}>
+          {parseFloat(order.pago?.monto || 0).toFixed(2)}
+        </td>
+        <td style={styles.td}>
+          <div style={styles.actionButtons}>
+            <button 
+              onClick={() => handleEdit(order)}
+              style={styles.actionButton}
+              title="Editar"
+            >
+              <FaEdit />
+            </button>
+            <button 
+              onClick={() => handleDelete(order.idOrden)}
+              style={{...styles.actionButton, color: '#dc3545'}}
+              title="Eliminar"
+            >
+              <FaTrash />
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>
+        No se encontraron órdenes que coincidan con los criterios de búsqueda.
+      </td>
+    </tr>
+  )}
+</tbody>
         </table>
       </div>
 

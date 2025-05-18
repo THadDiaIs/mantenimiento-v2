@@ -42,7 +42,7 @@ const ServiceManagement = () => {
       const serviceData = {
         ...formData,
         costo: parseFloat(formData.costo),
-        duracion: parseInt(formData.duracion, 10)
+        duracion: `${formData.duracion} minutos`
       };
       
       if (editingId) {
