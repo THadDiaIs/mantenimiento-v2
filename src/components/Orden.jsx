@@ -1,185 +1,235 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import api from '../services/api';
 
-// Componente para el formulario de orden
 const FormularioOrden = ({ orden, onSave, onCancel }) => {
   const [formData, setFormData] = useState(orden || {
-    tipoVehiculo: '',
-    tipoMantenimiento: '',
+    idVehiculo: '',
+    idEmpleado: '',
     fechaIngreso: new Date().toISOString().split('T')[0],
-    fechaSalidaEstimada: '',
+    fechaSalida: '',
     estado: 'Pendiente',
     observaciones: '',
-    metodoPago: '',
-    montoEstimado: ''
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const [vehicles, setVehicles] = useState([]);
+  const [services, setServices] = useState([]);
+  const [empleado, setEmpleado] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [empleadoRes, servicioRes, vehiculosRes] = await Promise.all([
+          api.get('/api/Empleado'),
+          api.get('/api/Servicio'),
+          api.get('/api/Vehiculo'),
+        ]);
+
+        setEmpleado(empleadoRes.data);
+        setServices(servicioRes.data);
+        setVehicles(vehiculosRes.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
+};
+
+const handleSave = async (ordenData) => {
+  try {
+    if (ordenData.id) {
+      await api.put(`/api/Orden/${ordenData.id}`, ordenData);
+    } else {
+      await api.post('/api/Orden', ordenData);
+    }
+
+    alert('Orden guardada correctamente');
+  } catch (error) {
+    console.error('Error guardando la orden:', error);
+    alert('Hubo un error al guardar la orden');
+  }
+};
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    console.log(" los datos ", formData)
+    handleSave(formData);
   };
 
+  if (loading) return <p>Cargando datos...</p>;
+
   return (
-      <div style={styles.modalContent}>
-        <h2 style={styles.title}>
-          {orden ? 'Editar Orden' : 'Nueva Orden de Mantenimiento'}
-          <button onClick={onCancel} style={styles.closeButton}>&times;</button>
-        </h2>
+    <div style={styles.modalContent}>
+      <h2 style={styles.title}>
+        {orden ? 'Editar Orden' : 'Nueva Orden de Mantenimiento'}
+        <button onClick={onCancel} style={styles.closeButton}>&times;</button>
+      </h2>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.section}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Tipo de Vehículo *</label>
-              <select 
-                name="tipoVehiculo"
-                value={formData.tipoVehiculo}
-                onChange={handleChange}
-                style={styles.select} 
-                required
-              >
-                <option value="">Seleccionar tipo</option>
-                <option value="Pickup">Pickup</option>
-                <option value="SUV">SUV</option>
-                <option value="Sedan">Sedan</option>
-                <option value="Coupe">Coupe</option>
-                <option value="Camioneta">Camioneta</option>
-                <option value="Camión">Camión</option>
-                <option value="Motocicleta">Motocicleta</option>
-              </select>
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Tipo de Mantenimiento *</label>
-              <select 
-                name="tipoMantenimiento"
-                value={formData.tipoMantenimiento}
-                onChange={handleChange}
-                style={styles.select} 
-                required
-              >
-                <option value="">Seleccionar tipo mantenimiento</option>
-                <option value="Cambio de aceite">Cambio de aceite</option>
-                <option value="Lavado">Lavado</option>
-                <option value="Lavado completo">Lavado completo</option>
-                <option value="Servicio completo">Servicio completo</option>
-                <option value="Enderezado y Pintura">Enderezado y Pintura</option>
-                <option value="Electromecánica">Electromecánica</option>
-                <option value="Pinchazo">Pinchazo</option>
-                <option value="Servicio de alineación">Servicio de alineación</option>
-                <option value="Rectificación de motor">Rectificación de motor</option>
-              </select>
-            </div>
-          </div>
-
-          <div style={styles.section}>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Fecha de Ingreso *</label>
-              <input 
-                type="date" 
-                name="fechaIngreso"
-                value={formData.fechaIngreso}
-                onChange={handleChange}
-                style={styles.input} 
-                required 
-              />
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Fecha de Salida Estimada</label>
-              <input 
-                type="date" 
-                name="fechaSalidaEstimada"
-                value={formData.fechaSalidaEstimada}
-                onChange={handleChange}
-                style={styles.input} 
-              />
-            </div>
-          </div>
-
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <div style={styles.section}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Estado *</label>
-            <div style={styles.radioGroup}>
-              {['Pendiente', 'En Proceso', 'Completado', 'Cancelado'].map(estado => (
-                <label key={estado} style={styles.radioLabel}>
-                  <input
-                    type="radio"
-                    name="estado"
-                    value={estado}
-                    checked={formData.estado === estado}
-                    onChange={handleChange}
-                    style={styles.radioInput}
-                  />
-                  <span>{estado}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Observaciones</label>
-            <textarea
-              rows={4}
-              style={styles.textarea}
-              name="observaciones"
-              value={formData.observaciones}
+            <label style={styles.label}>Tipo de Vehículo *</label>
+            <select
+              name="idVehiculo"
+              value={formData.idVehiculo}
               onChange={handleChange}
-              placeholder="Detalles del mantenimiento requerido..."
+              style={styles.select}
+              required
+            >
+              <option value="">Seleccionar tipo</option>
+              {vehicles.map(v => (
+                <option key={v.id} value={v.idVehiculo}>{v.tipo}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Empleado para Orden *</label>
+            <select
+              name="idEmpleado"
+              value={formData.idEmpleado}
+              onChange={handleChange}
+              style={styles.select}
+              required
+            >
+              <option value="">Seleccionar Empleado</option>
+              {empleado.map(e => (
+                <option key={e.id} value={e.idEmpleado}>{e.nombre}</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Tipo de Mantenimiento *</label>
+            <select
+              name="servicioId"
+              value={formData.servicioId}
+              onChange={handleChange}
+              style={styles.select}
+              required
+            >
+              <option value="">Seleccionar tipo mantenimiento</option>
+              {services.map(s => (
+                <option key={s.id} value={s.id}>{s.nombre}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+
+        <div style={styles.section}>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Fecha de Ingreso *</label>
+            <input
+              type="date"
+              name="fechaIngreso"
+              value={formData.fechaIngreso}
+              onChange={handleChange}
+              style={styles.input}
+              required
             />
           </div>
 
-          <div style={{ ...styles.section, ...styles.paymentSection }}>
-            <h3 style={styles.subtitle}>Información de Pago</h3>
-            <div style={styles.paymentFields}>
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Método de Pago</label>
-                <select 
-                  name="metodoPago"
-                  value={formData.metodoPago}
-                  onChange={handleChange}
-                  style={styles.select}
-                >
-                  <option value="">Seleccionar método</option>
-                  <option value="efectivo">Efectivo</option>
-                  <option value="tarjeta">Tarjeta</option>
-                </select>
-              </div>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Fecha de Salida Estimada</label>
+            <input
+              type="date"
+              name="fechaSalida"
+              value={formData.fechaSalida}
+              onChange={handleChange}
+              style={styles.input}
+            />
+          </div>
+        </div>
 
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Monto Estimado (Q)</label>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Estado *</label>
+          <div style={styles.radioGroup}>
+            {['Pendiente', 'En Proceso', 'Completado', 'Cancelado'].map(estado => (
+              <label key={estado} style={styles.radioLabel}>
                 <input
-                  type="number"
-                  name="montoEstimado"
-                  value={formData.montoEstimado}
+                  type="radio"
+                  name="estado"
+                  value={estado}
+                  checked={formData.estado === estado}
                   onChange={handleChange}
-                  step="0.01"
-                  style={styles.input}
-                  placeholder="0.00"
+                  style={styles.radioInput}
                 />
-              </div>
+                <span>{estado}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div style={styles.formGroup}>
+          <label style={styles.label}>Observaciones</label>
+          <textarea
+            rows={4}
+            style={styles.textarea}
+            name="observaciones"
+            value={formData.observaciones}
+            onChange={handleChange}
+            placeholder="Detalles del mantenimiento requerido..."
+          />
+        </div>
+
+        <div style={{ ...styles.section, ...styles.paymentSection }}>
+          <h3 style={styles.subtitle}>Información de Pago</h3>
+          <div style={styles.paymentFields}>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Método de Pago</label>
+              <select
+                name="metodoPago"
+                value={formData.metodoPago}
+                onChange={handleChange}
+                style={styles.select}
+              >
+                <option value="">Seleccionar método</option>
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta</option>
+              </select>
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Monto Estimado (Q)</label>
+              <input
+                type="number"
+                name="montoEstimado"
+                value={formData.montoEstimado}
+                onChange={handleChange}
+                step="0.01"
+                style={styles.input}
+                placeholder="0.00"
+              />
             </div>
           </div>
+        </div>
 
-          <div style={styles.buttonGroup}>
-            <button 
-              type="button" 
-              onClick={onCancel}
-              style={styles.cancelButton}
-            >
-              Cancelar
-            </button>
-            <button type="submit" style={styles.submitButton}>
-              {orden ? 'Actualizar Orden' : 'Crear Orden'}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div style={styles.buttonGroup}>
+          <button
+            type="button"
+            onClick={onCancel}
+            style={styles.cancelButton}
+          >
+            Cancelar
+          </button>
+          <button type="submit" style={styles.submitButton}>
+            {orden ? 'Actualizar Orden' : 'Crear Orden'}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 
@@ -194,7 +244,7 @@ const styles = {
     borderRadius: '8px',
     boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
   },
-  
+
   // Estilos para el encabezado
   header: {
     display: 'flex',
@@ -204,14 +254,14 @@ const styles = {
     flexWrap: 'wrap',
     gap: '16px'
   },
-  
+
   pageTitle: {
     fontSize: '24px',
     fontWeight: '600',
     color: '#2c3e50',
     margin: 0
   },
-  
+
   addButton: {
     display: 'flex',
     alignItems: 'center',
@@ -230,7 +280,7 @@ const styles = {
       transform: 'translateY(-1px)'
     }
   },
-  
+
   // Estilos para los filtros
   filtersContainer: {
     marginBottom: '24px',
@@ -239,13 +289,13 @@ const styles = {
     borderRadius: '8px',
     border: '1px solid #e9ecef'
   },
-  
+
   searchBox: {
     position: 'relative',
     marginBottom: '16px',
     maxWidth: '400px'
   },
-  
+
   searchIcon: {
     position: 'absolute',
     left: '12px',
@@ -253,7 +303,7 @@ const styles = {
     transform: 'translateY(-50%)',
     color: '#6c757d'
   },
-  
+
   searchInput: {
     width: '100%',
     padding: '10px 16px 10px 40px',
@@ -267,14 +317,14 @@ const styles = {
       outline: 'none'
     }
   },
-  
+
   filterGroup: {
     display: 'flex',
     gap: '16px',
     alignItems: 'center',
     flexWrap: 'wrap'
   },
-  
+
   filterLabel: {
     display: 'flex',
     alignItems: 'center',
@@ -283,7 +333,7 @@ const styles = {
     color: '#495057',
     marginRight: '8px'
   },
-  
+
   filterSelect: {
     padding: '8px 12px',
     border: '1px solid #ced4da',
@@ -293,20 +343,20 @@ const styles = {
     cursor: 'pointer',
     minWidth: '180px'
   },
-  
+
   dateFilter: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px'
   },
-  
+
   dateInput: {
     padding: '8px 12px',
     border: '1px solid #ced4da',
     borderRadius: '4px',
     fontSize: '14px'
   },
-  
+
   // Estilos para la tabla
   tableContainer: {
     overflowX: 'auto',
@@ -314,13 +364,13 @@ const styles = {
     border: '1px solid #e9ecef',
     marginBottom: '24px'
   },
-  
+
   table: {
     width: '100%',
     borderCollapse: 'collapse',
     fontSize: '14px'
   },
-  
+
   th: {
     backgroundColor: '#f8f9fa',
     padding: '12px 16px',
@@ -330,20 +380,20 @@ const styles = {
     borderBottom: '2px solid #dee2e6',
     whiteSpace: 'nowrap'
   },
-  
+
   td: {
     padding: '12px 16px',
     borderBottom: '1px solid #e9ecef',
     verticalAlign: 'middle'
   },
-  
+
   tr: {
     transition: 'background-color 0.2s',
     ':hover': {
       backgroundColor: '#f8f9fa'
     }
   },
-  
+
   // Estilos para el badge de estado
   statusBadge: {
     display: 'inline-block',
@@ -353,13 +403,13 @@ const styles = {
     fontWeight: '600',
     textTransform: 'capitalize'
   },
-  
+
   // Estilos para los botones de acción
   actionButtons: {
     display: 'flex',
     gap: '8px'
   },
-  
+
   actionButton: {
     backgroundColor: 'transparent',
     border: 'none',
@@ -376,7 +426,7 @@ const styles = {
       color: '#343a40'
     }
   },
-  
+
   // Estilos para el modal del formulario
   modalOverlay: {
     position: 'fixed',
@@ -392,7 +442,7 @@ const styles = {
     padding: '20px',
     overflowY: 'auto'
   },
-  
+
   modalContent: {
     backgroundColor: 'white',
     borderRadius: '8px',
@@ -404,7 +454,7 @@ const styles = {
     position: 'relative',
     padding: '24px'
   },
-  
+
   closeButton: {
     position: 'absolute',
     top: '16px',
@@ -422,7 +472,7 @@ const styles = {
       backgroundColor: '#f1f3f5'
     }
   },
-  
+
   // Estilos para el formulario
   title: {
     fontSize: '24px',

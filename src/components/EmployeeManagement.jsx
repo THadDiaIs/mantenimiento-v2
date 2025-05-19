@@ -9,8 +9,6 @@ const EmployeeManagement = () => {
     apellido: '',
     telefono: '',
     correo: '',
-    direccion: '',
-    fechaNacimiento: '',
     contrasenia: '',
     fechaContratacion: '',
     salario: '',
@@ -72,13 +70,12 @@ const EmployeeManagement = () => {
   };
 
   const handleEdit = (employee) => {
+    console.log(employee)
     setFormData({
       nombre: employee.nombre,
       apellido: employee.apellido,
       telefono: employee.telefono,
       correo: employee.correo,
-      direccion: employee.direccion,
-      fechaNacimiento: employee.fechaNacimiento.split('T')[0],
       contrasenia: '',
       fechaContratacion: employee.fechaContratacion.split('.')[0],
       salario: employee.salario,
@@ -105,8 +102,6 @@ const EmployeeManagement = () => {
       apellido: '',
       telefono: '',
       correo: '',
-      direccion: '',
-      fechaNacimiento: '',
       contrasenia: '',
       fechaContratacion: '',
       salario: '',
@@ -169,27 +164,7 @@ const EmployeeManagement = () => {
             />
           </div>
 
-          <div style={styles.formGroup}>
-            <label>Dirección:</label>
-            <input
-              type="text"
-              name="direccion"
-              value={formData.direccion}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
 
-          <div style={styles.formGroup}>
-            <label>Fecha de Nacimiento:</label>
-            <input
-              type="date"
-              name="fechaNacimiento"
-              value={formData.fechaNacimiento}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
 
           <div style={styles.formGroup}>
             <label>Contraseña:</label>
