@@ -39,18 +39,24 @@ const ServiceManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Aseguramos que duración siempre termine con ' minutos'
+      let duracionText = formData.duracion.toString().trim();
+      if (!duracionText.toLowerCase().endsWith('minutos')) {
+        duracionText = `${duracionText} minutos`;
+      }
+
       const serviceData = {
         ...formData,
         costo: parseFloat(formData.costo),
-        duracion: `${formData.duracion} minutos`
+        duracion: duracionText
       };
-      
+
       if (editingId) {
         await api.put(`/api/Servicio/${editingId}`, serviceData);
       } else {
         await api.post('/api/Servicio', serviceData);
       }
-      
+
       fetchServices();
       resetForm();
     } catch (error) {
@@ -59,11 +65,18 @@ const ServiceManagement = () => {
   };
 
   const handleEdit = (service) => {
+    // Extraemos solo el número de duración si viene con texto "30 minutos"
+    let duracionNum = service.duracion;
+    if (typeof duracionNum === 'string') {
+      const matches = duracionNum.match(/\d+/);
+      duracionNum = matches ? matches[0] : '';
+    }
+
     setFormData({
       nombre: service.nombre,
       descripcion: service.descripcion || '',
       costo: service.costo.toString(),
-      duracion: service.duracion.toString(),
+      duracion: duracionNum.toString(),
       activo: service.activo
     });
     setEditingId(service.idServicio);
@@ -82,6 +95,7 @@ const ServiceManagement = () => {
 
   const toggleServiceStatus = async (id, currentStatus) => {
     try {
+      // Llamada PATCH para cambiar el estado activo/inactivo
       await api.patch(`/api/Servicio/${id}/status`, { activo: !currentStatus });
       fetchServices();
     } catch (error) {
@@ -111,7 +125,7 @@ const ServiceManagement = () => {
   return (
     <div style={styles.container}>
       <h2>Gestión de Servicios</h2>
-      
+
       <div style={styles.formContainer}>
         <h3>{editingId ? 'Editar Servicio' : 'Agregar Nuevo Servicio'}</h3>
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -126,7 +140,7 @@ const ServiceManagement = () => {
               maxLength="100"
             />
           </div>
-          
+
           <div style={styles.formGroup}>
             <label>Descripción</label>
             <textarea
@@ -137,7 +151,7 @@ const ServiceManagement = () => {
               maxLength="500"
             />
           </div>
-          
+
           <div style={styles.formGroup}>
             <label>Costo (Q) *</label>
             <input
@@ -150,7 +164,7 @@ const ServiceManagement = () => {
               required
             />
           </div>
-          
+
           <div style={styles.formGroup}>
             <label>Duración (minutos) *</label>
             <input
@@ -162,7 +176,7 @@ const ServiceManagement = () => {
               required
             />
           </div>
-          
+
           <div style={styles.formGroup}>
             <label>
               <input
@@ -174,14 +188,14 @@ const ServiceManagement = () => {
               {' '}Activo
             </label>
           </div>
-          
+
           <div style={styles.buttonGroup}>
             <button type="submit" style={styles.submitButton}>
               {editingId ? 'Actualizar Servicio' : 'Agregar Servicio'}
             </button>
             {editingId && (
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={resetForm}
                 style={styles.cancelButton}
               >
@@ -191,7 +205,7 @@ const ServiceManagement = () => {
           </div>
         </form>
       </div>
-      
+
       <div style={styles.tableContainer}>
         <h3>Lista de Servicios</h3>
         <table style={styles.table}>
@@ -223,13 +237,13 @@ const ServiceManagement = () => {
                   </span>
                 </td>
                 <td>
-                  <button 
+                  <button
                     onClick={() => handleEdit(service)}
                     style={styles.editButton}
                   >
                     Editar
                   </button>
-                  <button 
+                  <button
                     onClick={() => toggleServiceStatus(service.idServicio, service.activo)}
                     style={{
                       ...styles.statusButton,
@@ -238,7 +252,7 @@ const ServiceManagement = () => {
                   >
                     {service.activo ? 'Desactivar' : 'Activar'}
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDelete(service.idServicio)}
                     style={styles.deleteButton}
                   >

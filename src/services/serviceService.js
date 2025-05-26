@@ -71,3 +71,15 @@ export const getServicesByVehicle = async (vehicleId) => {
     throw error.response?.data || { message: 'Error al obtener los servicios del vehículo' };
   }
 };
+
+export const toggleServiceActiveStatus = async (id) => {
+  try {
+    const service = await getServiceById(id);
+    const updatedService = { ...service, activo: !service.activo };
+    const response = await updateService(id, updatedService);
+    return response;
+  } catch (error) {
+    console.error(`Error toggling active status for service with id ${id}:`, error);
+    throw error.response?.data || { message: 'Error al actualizar el estado del servicio' };
+  }
+};

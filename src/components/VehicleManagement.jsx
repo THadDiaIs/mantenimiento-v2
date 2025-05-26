@@ -67,6 +67,11 @@ const VehicleManagement = () => {
       resetForm();
     } catch (error) {
       console.error('Error saving vehicle:', error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(`Error: ${error.response.data.message}`);
+      } else {
+        alert('Error al guardar el vehículo. Verifica que el ID de usuario exista.');
+      }
     } finally {
       setSaving(false);
     }
@@ -121,104 +126,116 @@ const VehicleManagement = () => {
       <div style={styles.formContainer}>
         <h3>{editingId ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}</h3>
         <form onSubmit={handleSubmit} style={styles.form}>
-  <div style={styles.formGroup}>
-    <label>ID Usuario *</label>
-    <input
-      type="number"
-      name="idUsuario"
-      value={formData.idUsuario}
-      onChange={handleInputChange}
-      required
-      min="1"
-    />
-  </div>
+          <div style={styles.formGroup}>
+            <label>ID Usuario *</label>
+            <input
+              type="number"
+              name="idUsuario"
+              value={formData.idUsuario}
+              onChange={handleInputChange}
+              required
+              min="1"
+              style={styles.input}
+            />
+          </div>
 
-  <div style={styles.formGroup}>
-    <label>Marca *</label>
-    <input
-      type="text"
-      name="marca"
-      value={formData.marca}
-      onChange={handleInputChange}
-      required
-      maxLength="50"
-    />
-  </div>
+          <div style={styles.formGroup}>
+            <label>Marca *</label>
+            <input
+              type="text"
+              name="marca"
+              value={formData.marca}
+              onChange={handleInputChange}
+              required
+              maxLength="50"
+              style={styles.input}
+            />
+          </div>
 
-  <div style={styles.formGroup}>
-    <label>Modelo *</label>
-    <input
-      type="text"
-      name="modelo"
-      value={formData.modelo}
-      onChange={handleInputChange}
-      required
-      maxLength="50"
-    />
-  </div>
+          <div style={styles.formGroup}>
+            <label>Modelo *</label>
+            <input
+              type="text"
+              name="modelo"
+              value={formData.modelo}
+              onChange={handleInputChange}
+              required
+              maxLength="50"
+              style={styles.input}
+            />
+          </div>
 
-  <div style={styles.formGroup}>
-    <label>Año *</label>
-    <input
-      type="number"
-      name="anio"
-      value={formData.anio}
-      onChange={handleInputChange}
-      required
-      min="1900"
-      max={new Date().getFullYear()}
-    />
-  </div>
+          <div style={styles.formGroup}>
+            <label>Año *</label>
+            <input
+              type="number"
+              name="anio"
+              value={formData.anio}
+              onChange={handleInputChange}
+              required
+              min="1900"
+              max={new Date().getFullYear()}
+              style={styles.input}
+            />
+          </div>
 
-  <div style={styles.formGroup}>
-    <label>Placa *</label>
-    <input
-      type="text"
-      name="placa"
-      value={formData.placa}
-      onChange={handleInputChange}
-      required
-      maxLength="10"
-    />
-  </div>
+          <div style={styles.formGroup}>
+            <label>Placa *</label>
+            <input
+              type="text"
+              name="placa"
+              value={formData.placa}
+              onChange={handleInputChange}
+              required
+              maxLength="10"
+              style={styles.input}
+            />
+          </div>
 
-  <div style={styles.formGroup}>
-    <label>Color</label>
-    <input
-      type="text"
-      name="color"
-      value={formData.color}
-      onChange={handleInputChange}
-      maxLength="30"
-    />
-  </div>
+          <div style={styles.formGroup}>
+            <label>Color</label>
+            <input
+              type="text"
+              name="color"
+              value={formData.color}
+              onChange={handleInputChange}
+              maxLength="30"
+              style={styles.input}
+            />
+          </div>
 
-  <div style={styles.formGroup}>
-    <label>Tipo</label>
-    <input
-      type="text"
-      name="tipo"
-      value={formData.tipo}
-      onChange={handleInputChange}
-      maxLength="30"
-    />
-  </div>
+          <div style={styles.formGroup}>
+            <label>Tipo *</label>
+            <select
+              name="tipo"
+              value={formData.tipo}
+              onChange={handleInputChange}
+              required
+              style={styles.input}
+            >
+              <option value="">Seleccione un tipo</option>
+              <option value="Sedán">Sedán</option>
+              <option value="SUV">SUV</option>
+              <option value="Pick-up">Pick-up</option>
+              <option value="Camioneta">Camioneta</option>
+              <option value="Deportivo">Deportivo</option>
+              <option value="Familiar">Familiar</option>
+              <option value="Eléctrico">Eléctrico</option>
+              <option value="Otro">Otro</option>
+            </select>
+          </div>
 
-  <div style={styles.buttonGroup}>
-    <button type="submit" disabled={saving} style={styles.submitButton}>
-      {saving ? 'Guardando...' : editingId ? 'Actualizar Vehículo' : 'Agregar Vehículo'}
-    </button>
-    {editingId && (
-      <button
-        type="button"
-        onClick={resetForm}
-        style={styles.cancelButton}
-      >
-        Cancelar
-      </button>
-    )}
-  </div>
-</form>
+          <div style={styles.buttonGroup}>
+            <button type="submit" disabled={saving} style={styles.submitButton}>
+              {saving ? 'Guardando...' : editingId ? 'Actualizar Vehículo' : 'Agregar Vehículo'}
+            </button>
+            {editingId && (
+              <button type="button" onClick={resetForm} style={styles.cancelButton}>
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
       </div>
 
       <div style={styles.tableContainer}>
@@ -250,16 +267,10 @@ const VehicleManagement = () => {
                   <td>{vehicle.color || 'N/A'}</td>
                   <td>{vehicle.tipo || 'N/A'}</td>
                   <td>
-                    <button
-                      onClick={() => handleEdit(vehicle)}
-                      style={styles.editButton}
-                    >
+                    <button onClick={() => handleEdit(vehicle)} style={styles.editButton}>
                       Editar
                     </button>
-                    <button
-                      onClick={() => handleDelete(vehicle.idVehiculo)}
-                      style={styles.deleteButton}
-                    >
+                    <button onClick={() => handleDelete(vehicle.idVehiculo)} style={styles.deleteButton}>
                       Eliminar
                     </button>
                   </td>
@@ -295,12 +306,19 @@ const styles = {
   },
   form: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))',
     gap: '15px',
     marginTop: '15px'
   },
   formGroup: {
-    marginBottom: '15px'
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  input: {
+    padding: '8px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    fontSize: '14px'
   },
   buttonGroup: {
     display: 'flex',
@@ -334,7 +352,6 @@ const styles = {
   table: {
     width: '100%',
     borderCollapse: 'collapse',
-    marginTop: '15px',
     fontSize: '14px'
   },
   editButton: {
@@ -344,9 +361,7 @@ const styles = {
     border: 'none',
     borderRadius: '4px',
     marginRight: '5px',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: '500'
+    cursor: 'pointer'
   },
   deleteButton: {
     padding: '6px 12px',
@@ -354,9 +369,7 @@ const styles = {
     color: 'white',
     border: 'none',
     borderRadius: '4px',
-    cursor: 'pointer',
-    fontSize: '13px',
-    fontWeight: '500'
+    cursor: 'pointer'
   }
 };
 

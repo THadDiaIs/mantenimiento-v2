@@ -5,28 +5,31 @@ const FormularioOrden = ({ orden, onSave, onCancel }) => {
   const [formData, setFormData] = useState(orden || {
     idVehiculo: '',
     idEmpleado: '',
+    servicioId: '',
     fechaIngreso: new Date().toISOString().split('T')[0],
     fechaSalida: '',
     estado: 'Pendiente',
     observaciones: '',
+    metodoPago: '',
+    montoEstimado: ''
   });
 
   const [vehicles, setVehicles] = useState([]);
   const [services, setServices] = useState([]);
-  const [empleado, setEmpleado] = useState([]);
+  const [empleados, setEmpleados] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empleadoRes, servicioRes, vehiculosRes] = await Promise.all([
+        const [empleadosRes, serviciosRes, vehiculosRes] = await Promise.all([
           api.get('/api/Empleado'),
           api.get('/api/Servicio'),
           api.get('/api/Vehiculo'),
         ]);
 
-        setEmpleado(empleadoRes.data);
-        setServices(servicioRes.data);
+        setEmpleados(empleadosRes.data);
+        setServices(serviciosRes.data);
         setVehicles(vehiculosRes.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -38,32 +41,31 @@ const FormularioOrden = ({ orden, onSave, onCancel }) => {
     fetchData();
   }, []);
 
-const handleChange = (e) => {
-  const { name, value } = e.target;
-  setFormData(prev => ({
-    ...prev,
-    [name]: value
-  }));
-};
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-const handleSave = async (ordenData) => {
-  try {
-    if (ordenData.id) {
-      await api.put(`/api/Orden/${ordenData.id}`, ordenData);
-    } else {
-      await api.post('/api/Orden', ordenData);
+  const handleSave = async (ordenData) => {
+    try {
+      if (ordenData.id) {
+        await api.put(`/api/Orden/${ordenData.id}`, ordenData);
+      } else {
+        await api.post('/api/Orden', ordenData);
+      }
+      alert('Orden guardada correctamente');
+      if (onSave) onSave(); // Notifica al padre si hay callback
+    } catch (error) {
+      console.error('Error guardando la orden:', error);
+      alert('Hubo un error al guardar la orden');
     }
-
-    alert('Orden guardada correctamente');
-  } catch (error) {
-    console.error('Error guardando la orden:', error);
-    alert('Hubo un error al guardar la orden');
-  }
-};
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(" los datos ", formData)
     handleSave(formData);
   };
 
@@ -89,7 +91,7 @@ const handleSave = async (ordenData) => {
             >
               <option value="">Seleccionar tipo</option>
               {vehicles.map(v => (
-                <option key={v.id} value={v.idVehiculo}>{v.tipo}</option>
+                <option key={v.idVehiculo || v.id} value={v.idVehiculo || v.id}>{v.tipo}</option>
               ))}
             </select>
           </div>
@@ -104,8 +106,8 @@ const handleSave = async (ordenData) => {
               required
             >
               <option value="">Seleccionar Empleado</option>
-              {empleado.map(e => (
-                <option key={e.id} value={e.idEmpleado}>{e.nombre}</option>
+              {empleados.map(e => (
+                <option key={e.idEmpleado || e.id} value={e.idEmpleado || e.id}>{e.nombre}</option>
               ))}
             </select>
           </div>
@@ -126,7 +128,6 @@ const handleSave = async (ordenData) => {
             </select>
           </div>
         </div>
-
 
         <div style={styles.section}>
           <div style={styles.formGroup}>
@@ -233,216 +234,9 @@ const handleSave = async (ordenData) => {
   );
 };
 
-// Estilos
+// (Aquí van los estilos que ya tienes definidos...)
+
 const styles = {
-  // Estilos para el contenedor principal
-  container: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '24px',
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-  },
-
-  // Estilos para el encabezado
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '24px',
-    flexWrap: 'wrap',
-    gap: '16px'
-  },
-
-  pageTitle: {
-    fontSize: '24px',
-    fontWeight: '600',
-    color: '#2c3e50',
-    margin: 0
-  },
-
-  addButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    backgroundColor: '#3498db',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
-    padding: '10px 16px',
-    cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '500',
-    transition: 'all 0.2s',
-    ':hover': {
-      backgroundColor: '#2980b9',
-      transform: 'translateY(-1px)'
-    }
-  },
-
-  // Estilos para los filtros
-  filtersContainer: {
-    marginBottom: '24px',
-    backgroundColor: '#f8f9fa',
-    padding: '16px',
-    borderRadius: '8px',
-    border: '1px solid #e9ecef'
-  },
-
-  searchBox: {
-    position: 'relative',
-    marginBottom: '16px',
-    maxWidth: '400px'
-  },
-
-  searchIcon: {
-    position: 'absolute',
-    left: '12px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    color: '#6c757d'
-  },
-
-  searchInput: {
-    width: '100%',
-    padding: '10px 16px 10px 40px',
-    border: '1px solid #ced4da',
-    borderRadius: '6px',
-    fontSize: '14px',
-    transition: 'all 0.2s',
-    ':focus': {
-      borderColor: '#80bdff',
-      boxShadow: '0 0 0 0.2rem rgba(0,123,255,0.25)',
-      outline: 'none'
-    }
-  },
-
-  filterGroup: {
-    display: 'flex',
-    gap: '16px',
-    alignItems: 'center',
-    flexWrap: 'wrap'
-  },
-
-  filterLabel: {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#495057',
-    marginRight: '8px'
-  },
-
-  filterSelect: {
-    padding: '8px 12px',
-    border: '1px solid #ced4da',
-    borderRadius: '4px',
-    backgroundColor: 'white',
-    fontSize: '14px',
-    cursor: 'pointer',
-    minWidth: '180px'
-  },
-
-  dateFilter: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px'
-  },
-
-  dateInput: {
-    padding: '8px 12px',
-    border: '1px solid #ced4da',
-    borderRadius: '4px',
-    fontSize: '14px'
-  },
-
-  // Estilos para la tabla
-  tableContainer: {
-    overflowX: 'auto',
-    borderRadius: '8px',
-    border: '1px solid #e9ecef',
-    marginBottom: '24px'
-  },
-
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: '14px'
-  },
-
-  th: {
-    backgroundColor: '#f8f9fa',
-    padding: '12px 16px',
-    textAlign: 'left',
-    fontWeight: '600',
-    color: '#495057',
-    borderBottom: '2px solid #dee2e6',
-    whiteSpace: 'nowrap'
-  },
-
-  td: {
-    padding: '12px 16px',
-    borderBottom: '1px solid #e9ecef',
-    verticalAlign: 'middle'
-  },
-
-  tr: {
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: '#f8f9fa'
-    }
-  },
-
-  // Estilos para el badge de estado
-  statusBadge: {
-    display: 'inline-block',
-    padding: '4px 8px',
-    borderRadius: '12px',
-    fontSize: '12px',
-    fontWeight: '600',
-    textTransform: 'capitalize'
-  },
-
-  // Estilos para los botones de acción
-  actionButtons: {
-    display: 'flex',
-    gap: '8px'
-  },
-
-  actionButton: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    color: '#6c757d',
-    cursor: 'pointer',
-    padding: '4px 8px',
-    borderRadius: '4px',
-    transition: 'all 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    ':hover': {
-      backgroundColor: '#f1f3f5',
-      color: '#343a40'
-    }
-  },
-
-  // Estilos para el modal del formulario
-  modalOverlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-    padding: '20px',
-    overflowY: 'auto'
-  },
-
   modalContent: {
     backgroundColor: 'white',
     borderRadius: '8px',
@@ -454,7 +248,6 @@ const styles = {
     position: 'relative',
     padding: '24px'
   },
-
   closeButton: {
     position: 'absolute',
     top: '16px',
@@ -466,14 +259,7 @@ const styles = {
     color: '#6c757d',
     padding: '4px 8px',
     borderRadius: '4px',
-    transition: 'all 0.2s',
-    ':hover': {
-      color: '#343a40',
-      backgroundColor: '#f1f3f5'
-    }
   },
-
-  // Estilos para el formulario
   title: {
     fontSize: '24px',
     fontWeight: '600',
@@ -481,12 +267,6 @@ const styles = {
     marginBottom: '24px',
     paddingBottom: '16px',
     borderBottom: '1px solid #eee'
-  },
-  subtitle: {
-    fontSize: '18px',
-    fontWeight: '500',
-    color: '#444',
-    marginBottom: '16px'
   },
   form: {
     display: 'flex',
@@ -496,10 +276,7 @@ const styles = {
   section: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '20px',
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr'
-    }
+    gap: '20px'
   },
   formGroup: {
     marginBottom: '16px'
@@ -517,11 +294,6 @@ const styles = {
     border: '1px solid #ddd',
     borderRadius: '6px',
     fontSize: '14px',
-    transition: 'all 0.3s',
-    ':focus': {
-      borderColor: '#4a90e2',
-      boxShadow: '0 0 0 3px rgba(74,144,226,0.2)'
-    }
   },
   select: {
     width: '100%',
@@ -530,11 +302,6 @@ const styles = {
     borderRadius: '6px',
     fontSize: '14px',
     backgroundColor: '#fff',
-    transition: 'all 0.3s',
-    ':focus': {
-      borderColor: '#4a90e2',
-      boxShadow: '0 0 0 3px rgba(74,144,226,0.2)'
-    }
   },
   textarea: {
     width: '100%',
@@ -544,11 +311,6 @@ const styles = {
     fontSize: '14px',
     resize: 'vertical',
     minHeight: '100px',
-    transition: 'all 0.3s',
-    ':focus': {
-      borderColor: '#4a90e2',
-      boxShadow: '0 0 0 3px rgba(74,144,226,0.2)'
-    }
   },
   radioGroup: {
     display: 'flex',
@@ -568,52 +330,42 @@ const styles = {
   paymentSection: {
     paddingTop: '20px',
     borderTop: '1px solid #eee',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '16px'
+    display: 'block'
+  },
+  subtitle: {
+    fontSize: '18px',
+    fontWeight: '600',
+    marginBottom: '16px',
+    color: '#333'
   },
   paymentFields: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    display: 'flex',
     gap: '20px',
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr'
-    }
+    flexWrap: 'wrap'
   },
   buttonGroup: {
     display: 'flex',
     justifyContent: 'flex-end',
     gap: '12px',
-    paddingTop: '20px',
-    borderTop: '1px solid #eee'
+    marginTop: '12px'
   },
   cancelButton: {
+    backgroundColor: '#dc3545',
+    color: 'white',
+    border: 'none',
     padding: '10px 20px',
-    border: '1px solid #ddd',
     borderRadius: '6px',
-    backgroundColor: '#fff',
-    color: '#555',
     cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '500',
-    transition: 'all 0.3s',
-    ':hover': {
-      backgroundColor: '#f5f5f5'
-    }
+    fontWeight: '600',
   },
   submitButton: {
-    padding: '10px 20px',
+    backgroundColor: '#007bff',
+    color: 'white',
     border: 'none',
+    padding: '10px 20px',
     borderRadius: '6px',
-    backgroundColor: '#4a90e2',
-    color: '#fff',
     cursor: 'pointer',
-    fontSize: '14px',
-    fontWeight: '500',
-    transition: 'all 0.3s',
-    ':hover': {
-      backgroundColor: '#3a7bc8'
-    }
+    fontWeight: '600',
   }
 };
 
